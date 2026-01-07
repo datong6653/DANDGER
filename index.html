@@ -1,1246 +1,330 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>高危點報馬仔 - 智慧通報系統</title>
+    <title>傳染病防治衛教 - 大同區健康服務中心</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
         body {
-            box-sizing: border-box;
-            font-family: 'Inter', 'Noto Sans TC', sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-            min-height: 100vh;
-            padding: 1rem;
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f1f5f9;
         }
-        
-        .container {
-            max-width: 48rem;
-            margin: 0 auto;
-            padding: 2rem 0;
+        .alert-pulse {
+            animation: pulse 2s infinite;
         }
-        
-        .header-card {
-            background: linear-gradient(135deg, #ff1744 0%, #d50000 100%);
-            border-radius: 1.5rem;
-            padding: 2rem;
-            text-align: center;
-            margin-bottom: 2rem;
-            box-shadow: 0 20px 40px -12px rgba(255, 23, 68, 0.6);
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
-        
-        .form-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 1.5rem;
-            padding: 2.5rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
         }
-        
-        .section-divider {
-            border-top: 2px solid #e5e7eb;
-            margin: 2rem 0;
-            padding-top: 2rem;
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 10px;
         }
-        
-        .input-field, .select-field, .textarea-field {
-            width: 100%;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            border: 2px solid #e5e7eb;
-            background-color: #f8fafc;
-            transition: all 0.3s ease;
-            font-size: 0.95rem;
-        }
-        
-        .input-field:focus, .select-field:focus, .textarea-field:focus {
-            outline: none;
-            border-color: #2196f3;
-            box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.2);
-            background-color: #ffffff;
-        }
-        
-        .label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 0.5rem;
-        }
-        
-        .required::after {
-            content: " *";
-            color: #ef4444;
-        }
-        
-        .submit-btn {
-            background: linear-gradient(135deg, #2196f3 0%, #1565c0 100%);
-            color: white;
-            padding: 1.25rem 2rem;
-            border-radius: 0.75rem;
-            border: none;
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            width: 100%;
-            box-shadow: 0 10px 25px rgba(33, 150, 243, 0.5);
-        }
-        
-        .submit-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4);
-        }
-        
-        .submit-btn:active {
-            transform: translateY(-1px);
-        }
-        
-        .success-message {
-            background: linear-gradient(135deg, #00e676 0%, #00c853 100%);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 1rem;
-            text-align: center;
-            font-weight: 600;
-            display: none;
-            margin-bottom: 2rem;
-            box-shadow: 0 10px 25px rgba(0, 230, 118, 0.5);
-        }
-        
-        .icon-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 3rem;
-            height: 3rem;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 50%;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .grid-responsive {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
-        }
-        
-        .urgency-high { border-left: 4px solid #ef4444; }
-        .urgency-medium { border-left: 4px solid #f59e0b; }
-        .urgency-low { border-left: 4px solid #10b981; }
-        
-        .share-notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5);
-            z-index: 1000;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-        }
-        
-        .share-notification.show {
-            transform: translateX(0);
-        }
-        
-        @media (max-width: 768px) {
-            .container { padding: 1rem 0; }
-            .form-container { padding: 1.5rem; }
-            .header-card { padding: 1.5rem; }
+        @media print {
+            .no-print { display: none !important; }
+            body { background-color: white; }
+            .print-card { border: 1px solid #e2e8f0; box-shadow: none !important; }
         }
     </style>
 </head>
-<body>
+<body class="text-slate-800 antialiased">
 
-<div class="container">
-    <!-- 標題區域 -->
-    <div class="header-card">
-        <div class="icon-badge">🚨</div>
-        <h1 class="text-3xl font-bold text-white mb-2">高危點報馬仔</h1>
-        <p class="text-red-100 text-lg">智慧通報系統<span class="bg-yellow-400 text-red-800 px-3 py-1 rounded-full font-bold text-sm ml-2 animate-pulse">內部版</span> - 守護社區安全</p>
-        
-        <!-- 功能按鈕 -->
-        <div class="flex flex-wrap justify-center gap-3 mt-4">
-            <button id="showFormBtn" class="bg-white bg-opacity-40 text-white px-4 py-2 rounded-lg font-medium hover:bg-opacity-30 transition-all">
-                📝 新增通報
-            </button>
-            <button id="showRecordsBtn" class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg font-medium hover:bg-opacity-30 transition-all">
-                📋 查看記錄
-            </button>
-            <button id="exportDataBtn" class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg font-medium hover:bg-opacity-30 transition-all">
-                📊 匯出資料
-            </button>
-            <button id="shareDataBtn" class="bg-white bg-opacity-20 text-white px-4 py-2 rounded-lg font-medium hover:bg-opacity-30 transition-all">
-                📤 分享資料
-            </button>
-        </div>
-    </div>
-    
-    <!-- 成功訊息 -->
-    <div id="successMessage" class="success-message">
-        <div class="text-2xl mb-2">✅</div>
-        <div class="text-lg font-bold mb-1">報告提交成功！</div>
-        <div>感謝您的協助，我們會在24小時內派員處理</div>
-    </div>
-    
-    <!-- 分享通知 -->
-    <div id="shareNotification" class="share-notification">
-        <div class="flex items-center gap-2">
-            <span>✅</span>
-            <span id="shareNotificationText">分享成功！</span>
-        </div>
-    </div>
-    
-    <!-- 分享彈窗 -->
-    <div id="shareModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="display: none;">
-        <div class="bg-white rounded-2xl p-6 max-w-md w-full mx-4 max-h-96 overflow-y-auto">
-            <div class="text-center mb-4">
-                <h3 class="text-xl font-bold text-gray-800 mb-2">📤 分享通報資料</h3>
-                <p class="text-gray-600 text-sm">選擇分享方式</p>
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-indigo-600 p-2 rounded-xl shadow-indigo-200 shadow-lg">
+                    <i class="fas fa-medkit text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg md:text-xl leading-tight text-slate-900">臨床防疫與通報實務指引</h1>
+                    <p class="text-[10px] md:text-xs text-slate-500 font-medium tracking-wide">臺北市大同區健康服務中心 ‧ 內部專用</p>
+                </div>
             </div>
-            
-            <div class="space-y-3">
-                <button id="shareWhatsApp" class="w-full bg-green-500 text-white p-3 rounded-lg hover:bg-green-600 transition-all flex items-center justify-center gap-2">
-                    📱 WhatsApp 分享
-                </button>
-                <button id="shareLine" class="w-full bg-green-400 text-white p-3 rounded-lg hover:bg-green-500 transition-all flex items-center justify-center gap-2">
-                    💬 LINE 分享
-                </button>
-                <button id="shareEmail" class="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 transition-all flex items-center justify-center gap-2">
-                    📧 Email 分享
-                </button>
-                <button id="copyLink" class="w-full bg-gray-500 text-white p-3 rounded-lg hover:bg-gray-600 transition-all flex items-center justify-center gap-2">
-                    📋 複製連結
-                </button>
-                <button id="shareReport" class="w-full bg-purple-500 text-white p-3 rounded-lg hover:bg-purple-600 transition-all flex items-center justify-center gap-2">
-                    📊 分享統計報告
+            <div class="flex items-center space-x-2">
+                <span class="hidden md:inline-block bg-red-100 text-red-700 text-[10px] font-bold px-3 py-1 rounded-full alert-pulse border border-red-200">
+                    <i class="fas fa-biohazard mr-1"></i> 重點傳染病警戒中
+                </span>
+                <button onclick="window.print()" class="no-print p-2 text-slate-400 hover:text-indigo-600 transition-colors">
+                    <i class="fas fa-print text-lg"></i>
                 </button>
             </div>
-            
-            <button id="closeShareModal" class="w-full mt-4 bg-gray-200 text-gray-700 p-2 rounded-lg hover:bg-gray-300 transition-all">
-                關閉
-            </button>
         </div>
-    </div>
-    
-    <!-- 通報記錄查看區域 -->
-    <div id="recordsContainer" class="form-container" style="display: none;">
-        <div class="text-center mb-6">
-            <h2 class="text-xl font-bold text-gray-800 mb-2">通報記錄管理</h2>
-            <p class="text-gray-600">查看所有通報記錄並進行管理</p>
-        </div>
-        
-        <!-- 統計資訊 -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg text-center">
-                <div class="text-2xl font-bold" id="totalReports">0</div>
-                <div class="text-sm">總通報數</div>
-            </div>
-            <div class="bg-gradient-to-r from-red-500 to-red-600 text-white p-4 rounded-lg text-center">
-                <div class="text-2xl font-bold" id="urgentReports">0</div>
-                <div class="text-sm">緊急案件</div>
-            </div>
-            <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg text-center">
-                <div class="text-2xl font-bold" id="completedReports">0</div>
-                <div class="text-sm">已處理</div>
-            </div>
-            <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-4 rounded-lg text-center">
-                <div class="text-2xl font-bold" id="pendingReports">0</div>
-                <div class="text-sm">待處理</div>
-            </div>
-        </div>
-        
-        <!-- 搜尋和篩選 -->
-        <div class="bg-gray-50 p-4 rounded-lg mb-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <input type="text" id="searchInput" placeholder="搜尋通報編號、地址或描述..." class="input-field">
-                <select id="filterUrgency" class="select-field">
-                    <option value="">所有緊急程度</option>
-                    <option value="非常緊急">非常緊急</option>
-                    <option value="緊急">緊急</option>
-                    <option value="一般">一般</option>
-                    <option value="不緊急">不緊急</option>
-                </select>
-                <select id="filterStatus" class="select-field">
-                    <option value="">所有狀態</option>
-                    <option value="待處理">待處理</option>
-                    <option value="處理中">處理中</option>
-                    <option value="已完成">已完成</option>
-                </select>
-            </div>
-        </div>
-        
-        <!-- 記錄列表 -->
-        <div id="recordsList" class="space-y-4">
-            <!-- 記錄項目將由 JavaScript 動態生成 -->
-        </div>
-        
-        <!-- 清空資料按鈕 -->
-        <div class="text-center mt-6">
-            <button id="clearAllData" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-all">
-                🗑️ 清空所有資料
-            </button>
-        </div>
-    </div>
+    </header>
 
-    <!-- 表單容器 -->
-    <div id="formContainer" class="form-container">
-        <div class="text-center mb-6">
-            <h2 class="text-xl font-bold text-gray-800 mb-2">請填寫通報資訊</h2>
-            <p class="text-gray-600">您的每一次通報都是對社區安全的重要貢獻</p>
+    <main class="max-w-6xl mx-auto px-4 py-6">
+        <!-- 緊急通知區塊 -->
+        <div class="mb-6 bg-gradient-to-r from-red-600 to-red-500 p-1 rounded-2xl shadow-lg">
+            <div class="bg-red-50 rounded-[calc(1rem-1px)] p-4 flex items-start">
+                <div class="bg-red-100 p-3 rounded-full mr-4 flex-shrink-0">
+                    <i class="fas fa-bullhorn text-red-600 animate-bounce"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-red-900 mb-1">關鍵防疫提示：發燒且出疹 (Fever & Rash)</h3>
+                    <p class="text-sm text-red-800 leading-relaxed">
+                        臨床遇有發燒、皮疹個案，請務必同時評估「<span class="font-bold underline">麻疹</span>」與「<span class="font-bold underline">登革熱</span>」之可能性。落實早期通報，避免院內感染擴散。
+                    </p>
+                </div>
+            </div>
         </div>
-        
-        <form id="reportForm" class="space-y-6">
-            <!-- 基本資訊區域 -->
-            <div>
-                <h3 class="text-lg font-bold text-gray-700 mb-4 flex items-center">
-                    👤 基本資訊
-                </h3>
-                
-                <div class="space-y-4">
-                    <!-- 匿名通報選項 -->
-                    <div>
-                        <label class="flex items-center space-x-2 cursor-pointer mb-4">
-                            <input type="checkbox" id="anonymousReport" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
-                            <span class="text-sm font-medium text-gray-700">匿名通報</span>
-                        </label>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- 左側：臨床判定工具 -->
+            <div class="lg:col-span-4 space-y-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden sticky top-24">
+                    <div class="p-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                        <h2 class="font-bold text-slate-800 flex items-center">
+                            <i class="fas fa-clipboard-list text-indigo-600 mr-2"></i> 快速判定工具
+                        </h2>
+                        <span class="text-[10px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded font-bold">Ver 1.2</span>
                     </div>
                     
-                    <!-- 姓名 -->
-                    <div id="nameSection">
-                        <label for="name" class="label required">通報人姓名</label>
-                        <select id="name" name="name" required class="select-field">
-                            <option value="" disabled selected>請選擇您的姓名</option>
-                            <option value="6611 杜文琪(主任)">6611 杜文琪(主任)</option>
-                            <option value="6613 蕭雅玲(秘書)">6613 蕭雅玲(秘書)</option>
-                            <option value="6661 張琬娥(組長)">6661 張琬娥(組長)</option>
-                            <option value="6662 張司函">6662 張司函</option>
-                            <option value="6637 吳恩綺">6637 吳恩綺</option>
-                            <option value="6636 游蕙慈">6636 游蕙慈</option>
-                            <option value="6659 張雁茹">6659 張雁茹</option>
-                            <option value="6615 李勁緯">6615 李勁緯</option>
-                            <option value="6666 葉慧玲">6666 葉慧玲</option>
-                            <option value="6667 楊絜宇">6667 楊絜宇</option>
-                            <option value="6679 廖得順">6679 廖得順</option>
-                            <option value="6668 彭思駿">6668 彭思駿</option>
-                            <option value="6691 陳家真">6691 陳家真</option>
-                            <option value="6653 林明憲(防疫)">6653 林明憲(防疫)</option>
-                            <option value="6656 王思涵(防疫)">6656 王思涵(防疫)</option>
-                            <option value="6657 陳彥容(防疫)">6657 陳彥容(防疫)</option>
-                            <option value="6670 李晉安(保護性社工)">6670 李晉安(保護性社工)</option>
-                            <option value="6671 張美咪(專案助理員)">6671 張美咪(專案助理員)</option>
-                            <option value="6635 簡詠禾">6635 簡詠禾</option>
-                            <option value="6650 江婕妘(保護性社工)">6650 江婕妘(保護性社工)</option>
-                            <option value="6606 翁偉翔(關訪員)">6606 翁偉翔(關訪員)</option>
-                            <option value="6619 王品莉(關訪員)">6619 王品莉(關訪員)</option>
-                            <option value="6687 徐群逸(關訪員)">6687 徐群逸(關訪員)</option>
-                            <option value="6631 李翠蓉(組長)">6631 李翠蓉(組長)</option>
-                            <option value="6632 王梅娟(護理長)">6632 王梅娟(護理長)</option>
-                            <option value="6633 王虹雅">6633 王虹雅</option>
-                            <option value="6655 林靖雯">6655 林靖雯</option>
-                            <option value="6665 羅毓婉">6665 羅毓婉</option>
-                            <option value="6638 葉智婷">6638 葉智婷</option>
-                            <option value="6652 林湘玲">6652 林湘玲</option>
-                            <option value="6658 趙佩儀">6658 趙佩儀</option>
-                            <option value="6651 陳家瑋">6651 陳家瑋</option>
-                            <option value="6639 蔡雅安">6639 蔡雅安</option>
-                            <option value="匿名通報">匿名通報</option>
-                        </select>
-                    </div>
-                    
-                    <!-- 聯絡電話 -->
-                    <div>
-                        <label for="phone" class="label">聯絡電話</label>
-                        <input type="tel" id="phone" name="phone" placeholder="例如: 0912-345-678" class="input-field">
-                        <p class="text-xs text-gray-500 mt-1">選填，方便我們聯繫確認詳情</p>
-                    </div>
-                    
-                    <!-- 通報日期 -->
-                    <div>
-                        <label for="discoveryDate" class="label required">通報日期</label>
-                        <input type="date" id="discoveryDate" name="discoveryDate" required class="input-field">
+                    <div class="p-5 space-y-5">
+                        <!-- 第一階段：共通症狀 -->
+                        <div>
+                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">STEP 1. 共通症狀評估</p>
+                            <div class="grid grid-cols-1 gap-2">
+                                <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer group">
+                                    <input type="checkbox" id="check_fever" class="h-5 w-5 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500">
+                                    <span class="ml-3 font-medium text-slate-700 group-hover:text-indigo-700">發燒 (Temp &ge; 38&deg;C)</span>
+                                </label>
+                                <label class="flex items-center p-3 rounded-xl border border-slate-200 hover:bg-slate-50 transition-all cursor-pointer group">
+                                    <input type="checkbox" id="check_rash" class="h-5 w-5 text-indigo-600 border-slate-300 rounded focus:ring-indigo-500">
+                                    <span class="ml-3 font-medium text-slate-700 group-hover:text-indigo-700">皮膚出現皮疹 / 紅疹</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 第二階段：差異化評估 -->
+                        <div>
+                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-3">STEP 2. 鑑別診斷加強項</p>
+                            <div class="space-y-2">
+                                <label class="flex items-start p-3 rounded-xl bg-blue-50/50 border border-blue-100 cursor-pointer">
+                                    <input type="checkbox" class="diff-cond h-4 w-4 mt-1 text-blue-600 border-blue-300 rounded">
+                                    <div class="ml-3">
+                                        <p class="text-sm font-bold text-blue-900">麻疹傾向</p>
+                                        <p class="text-[11px] text-blue-700">咳嗽、流鼻水、結膜炎 (3C) 或 柯氏斑</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-start p-3 rounded-xl bg-emerald-50/50 border border-emerald-100 cursor-pointer">
+                                    <input type="checkbox" class="diff-cond h-4 w-4 mt-1 text-emerald-600 border-emerald-300 rounded">
+                                    <div class="ml-3">
+                                        <p class="text-sm font-bold text-emerald-900">登革熱傾向</p>
+                                        <p class="text-[11px] text-emerald-700">後眼窩痛、肌肉關節痛、具流行區旅遊史</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 動態結果顯示 -->
+                        <div id="decisionResult" class="mt-4">
+                            <div class="p-4 rounded-xl bg-slate-100 border border-slate-200 text-center border-dashed">
+                                <p class="text-xs text-slate-500">請勾選上方症狀以獲取行動建議</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- 地址資訊區域 -->
-            <div class="section-divider">
-                <h3 class="text-lg font-bold text-gray-700 mb-4 flex items-center">
-                    📍 通報地點
-                </h3>
-                
-                <div class="space-y-4">
-                    <!-- 里別 -->
-                    <div>
-                        <label for="village" class="label required">里別</label>
-                        <select id="village" name="village" required class="select-field">
-                            <option value="" disabled selected>請選擇里別</option>
-                            <option value="大有里">大有里</option>
-                            <option value="光能里">光能里</option>
-                            <option value="老師里">老師里</option>
-                            <option value="國慶里">國慶里</option>
-                            <option value="鄰江里">鄰江里</option>
-                            <option value="景星里">景星里</option>
-                            <option value="建明里">建明里</option>
-                            <option value="建泰里">建泰里</option>
-                            <option value="至聖里">至聖里</option>
-                            <option value="雙連里">雙連里</option>
-                            <option value="民權里">民權里</option>
-                            <option value="永樂里">永樂里</option>
-                            <option value="朝陽里">朝陽里</option>
-                            <option value="南芳里">南芳里</option>
-                            <option value="揚雅里">揚雅里</option>
-                            <option value="斯文里">斯文里</option>
-                            <option value="重慶里">重慶里</option>
-                            <option value="保安里">保安里</option>
-                            <option value="玉泉里">玉泉里</option>
-                            <option value="蓬萊里">蓬萊里</option>
-                            <option value="建功里">建功里</option>
-                            <option value="延平里">延平里</option>
-                            <option value="星明里">星明里</option>
-                            <option value="隆和里">隆和里</option>
-                            <option value="國順里">國順里</option>
-                        </select>
-                    </div>
-                    
-                    <!-- 路名 -->
-                    <div>
-                        <label for="road" class="label required">路名地址</label>
-                        <select id="road" name="road" required class="select-field">
-                            <option value="" disabled selected>請選擇路名</option>
-                            <option value="五原路">五原路</option>
-                            <option value="伊寧街">伊寧街</option>
-                            <option value="保安街">保安街</option>
-                            <option value="南京西路">南京西路</option>
-                            <option value="哈密街">哈密街</option>
-                            <option value="塔城街">塔城街</option>
-                            <option value="大龍街">大龍街</option>
-                            <option value="天水路">天水路</option>
-                            <option value="太原路">太原路</option>
-                            <option value="安西街">安西街</option>
-                            <option value="寧夏路">寧夏路</option>
-                            <option value="市民大道１段">市民大道１段</option>
-                            <option value="平陽街">平陽街</option>
-                            <option value="庫倫街">庫倫街</option>
-                            <option value="延平北路１段">延平北路１段</option>
-                            <option value="延平北路２段">延平北路２段</option>
-                            <option value="延平北路３段">延平北路３段</option>
-                            <option value="延平北路４段">延平北路４段</option>
-                            <option value="忠孝西路２段">忠孝西路２段</option>
-                            <option value="承德路１段">承德路１段</option>
-                            <option value="承德路２段">承德路２段</option>
-                            <option value="承德路３段">承德路３段</option>
-                            <option value="撫順街">撫順街</option>
-                            <option value="敦煌路">敦煌路</option>
-                            <option value="昌吉街">昌吉街</option>
-                            <option value="景化街">景化街</option>
-                            <option value="歸綏街">歸綏街</option>
-                            <option value="民族西路">民族西路</option>
-                            <option value="民樂街">民樂街</option>
-                            <option value="民權西路">民權西路</option>
-                            <option value="民生西路">民生西路</option>
-                            <option value="永昌街">永昌街</option>
-                            <option value="涼州街">涼州街</option>
-                            <option value="環河北路１段">環河北路１段</option>
-                            <option value="環河北路２段">環河北路２段</option>
-                            <option value="甘州街">甘州街</option>
-                            <option value="甘谷街">甘谷街</option>
-                            <option value="興城街">興城街</option>
-                            <option value="華亭街">華亭街</option>
-                            <option value="華陰街">華陰街</option>
-                            <option value="萬全街">萬全街</option>
-                            <option value="蘭州街">蘭州街</option>
-                            <option value="西寧北路">西寧北路</option>
-                            <option value="貴德街">貴德街</option>
-                            <option value="赤峰街">赤峰街</option>
-                            <option value="迪化街１段">迪化街１段</option>
-                            <option value="迪化街２段">迪化街２段</option>
-                            <option value="通河西街１段">通河西街１段</option>
-                            <option value="鄭州路">鄭州路</option>
-                            <option value="酒泉街">酒泉街</option>
-                            <option value="重慶北路１段">重慶北路１段</option>
-                            <option value="重慶北路２段">重慶北路２段</option>
-                            <option value="重慶北路３段">重慶北路３段</option>
-                            <option value="錦西街">錦西街</option>
-                            <option value="長安西路">長安西路</option>
-                            <option value="雙連街">雙連街</option>
-                        </select>
-                    </div>
-                    
-                    <!-- 詳細地址 -->
-                    <div class="grid-responsive">
-                        <div>
-                            <label for="lane" class="label">巷</label>
-                            <input type="text" id="lane" name="lane" placeholder="123" class="input-field">
-                        </div>
-                        <div>
-                            <label for="alley" class="label">弄</label>
-                            <input type="text" id="alley" name="alley" placeholder="45" class="input-field">
-                        </div>
-                        <div>
-                            <label for="number" class="label required">號</label>
-                            <input type="text" id="number" name="number" required placeholder="67" class="input-field">
-                        </div>
-                        <div>
-                            <label for="subnumber" class="label">之</label>
-                            <input type="text" id="subnumber" name="subnumber" placeholder="1" class="input-field">
-                        </div>
-                        <div>
-                            <label for="floor" class="label">樓</label>
-                            <input type="text" id="floor" name="floor" placeholder="2" class="input-field">
-                        </div>
-                    </div>
-                    
-                    <!-- 地標描述 -->
-                    <div>
-                        <label for="landmark" class="label">附近地標</label>
-                        <input type="text" id="landmark" name="landmark" placeholder="例如: 7-11便利商店旁、公車站牌前" class="input-field">
-                        <p class="text-xs text-gray-500 mt-1">幫助我們更快找到確切位置</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 危險資訊區域 -->
-            <div class="section-divider">
-                <h3 class="text-lg font-bold text-gray-700 mb-4 flex items-center">
-                    ⚠️ 危險資訊
-                </h3>
-                
-                <div class="space-y-4">
-                    <!-- 高危點類型 -->
-                    <div>
-                        <label for="riskType" class="label required">高危點類型</label>
-                        <select id="riskType" name="riskType" required class="select-field">
-                            <option value="" disabled selected>請選擇高危點類型</option>
-                            <option value="住宅">🏠 住宅</option>
-                            <option value="機關">🏛️ 機關</option>
-                            <option value="學校">🏫 學校</option>
-                            <option value="空地">🏞️ 空地</option>
-                            <option value="公園">🌳 公園</option>
-                            <option value="菜園">🥬 菜園</option>
-                            <option value="市場">🏪 市場</option>
-                            <option value="空屋">🏚️ 空屋</option>
-                            <option value="其他">❓ 其他</option>
-                        </select>
-                    </div>
-                    
-                    <!-- 緊急程度 -->
-                    <div>
-                        <label for="urgency" class="label required">緊急程度</label>
-                        <select id="urgency" name="urgency" required class="select-field">
-                            <option value="" disabled selected>請評估危險程度</option>
-                            <option value="非常緊急">🔴 非常緊急 - 有立即危險，需馬上處理</option>
-                            <option value="緊急">🟠 緊急 - 24小時內需要處理</option>
-                            <option value="一般">🟡 一般 - 一週內處理即可</option>
-                            <option value="不緊急">🟢 不緊急 - 一個月內處理</option>
-                        </select>
-                    </div>
-                    
-                    <!-- 詳細描述 -->
-                    <div>
-                        <label for="description" class="label required">詳細描述</label>
-                        <textarea id="description" name="description" required 
-                                  placeholder="請詳細描述：&#10;1. 具體危險情況&#10;2. 影響範圍大小&#10;3. 是否有人受傷&#10;4. 其他重要資訊" 
-                                  rows="5" class="textarea-field resize-none"></textarea>
-                    </div>
-                    
-                    <!-- 上傳照片 -->
-                    <div>
-                        <label for="photos" class="label">上傳照片</label>
-                        <input type="file" id="photos" name="photos" accept="image/*" multiple class="input-field">
-                        <p class="text-xs text-gray-500 mt-1">可上傳多張照片，有助於我們更快了解現場狀況</p>
-                        <div id="photoPreview" class="mt-2 grid grid-cols-2 md:grid-cols-3 gap-2"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 提交按鈕 -->
-            <div class="pt-6">
-                <button type="submit" class="submit-btn">
-                    📤 立即提交通報
-                </button>
-                <p class="text-xs text-gray-500 text-center mt-3">
-                    提交後我們會立即處理，感謝您對社區安全的關心
-                </p>
-            </div>
-        </form>
-    </div>
-</div>
 
-<script>
-    // 日期選擇器功能
-    const discoveryDate = document.getElementById('discoveryDate');
-    
-    // 設定今天為預設日期
-    const today = new Date();
-    discoveryDate.value = today.toISOString().split('T')[0];
-    
-    // 匿名通報功能
-    const anonymousCheckbox = document.getElementById('anonymousReport');
-    const nameSection = document.getElementById('nameSection');
-    const nameSelect = document.getElementById('name');
-    
-    anonymousCheckbox.addEventListener('change', function() {
-        if (this.checked) {
-            nameSection.style.display = 'none';
-            nameSelect.removeAttribute('required');
-            nameSelect.value = '匿名通報';
-        } else {
-            nameSection.style.display = 'block';
-            nameSelect.setAttribute('required', '');
-            nameSelect.value = '';
-        }
-    });
-    
-    // 緊急程度視覺提示
-    document.getElementById('urgency').addEventListener('change', function() {
-        const container = this.closest('.section-divider');
-        container.classList.remove('urgency-high', 'urgency-medium', 'urgency-low');
-        
-        if (this.value === '非常緊急') {
-            container.classList.add('urgency-high');
-        } else if (this.value === '緊急') {
-            container.classList.add('urgency-medium');
-        } else if (this.value === '一般' || this.value === '不緊急') {
-            container.classList.add('urgency-low');
-        }
-    });
-    
-    // 照片上傳預覽功能
-    const photoInput = document.getElementById('photos');
-    const photoPreview = document.getElementById('photoPreview');
-    
-    photoInput.addEventListener('change', function(e) {
-        photoPreview.innerHTML = '';
-        const files = Array.from(e.target.files);
-        
-        files.forEach((file, index) => {
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const div = document.createElement('div');
-                    div.className = 'relative';
-                    div.innerHTML = `
-                        <img src="${e.target.result}" alt="預覽圖片 ${index + 1}" 
-                             class="w-full h-24 object-cover rounded-lg border-2 border-gray-200">
-                        <button type="button" onclick="removePhoto(${index})" 
-                                class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs hover:bg-red-600">
-                            ×
-                        </button>
-                    `;
-                    photoPreview.appendChild(div);
-                };
-                reader.readAsDataURL(file);
+            <!-- 右側：防疫指引詳情 -->
+            <div class="lg:col-span-8 space-y-6">
+                
+                <!-- SOP 流程 -->
+                <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-5 border-b border-slate-100 bg-white">
+                        <h2 class="font-bold text-lg flex items-center">
+                            <span class="w-2 h-6 bg-indigo-600 rounded-full mr-3"></span>
+                            感管與通報作業流程
+                        </h2>
+                    </div>
+                    <div class="p-6">
+                        <div class="relative">
+                            <!-- 連接線 (桌面版) -->
+                            <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-slate-100 -translate-x-1/2"></div>
+                            
+                            <div class="space-y-8 relative">
+                                <!-- Step 1 -->
+                                <div class="flex flex-col md:flex-row items-center">
+                                    <div class="md:w-1/2 md:pr-10 text-right hidden md:block">
+                                        <h4 class="font-bold text-slate-800">落實 TOCC 詢問</h4>
+                                        <p class="text-xs text-slate-500">旅遊史、職業史、接觸史、群聚史</p>
+                                    </div>
+                                    <div class="z-10 bg-indigo-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg shadow-indigo-200">1</div>
+                                    <div class="md:w-1/2 md:pl-10 mt-2 md:mt-0">
+                                        <h4 class="font-bold text-slate-800 md:hidden">落實 TOCC 詢問</h4>
+                                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm text-slate-600">
+                                            發現疑似個案應即刻配戴<strong>外科口罩</strong>，並引導至獨立通風空間。
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step 2 -->
+                                <div class="flex flex-col md:flex-row items-center">
+                                    <div class="md:w-1/2 md:pr-10 text-right mt-2 md:mt-0 order-2 md:order-1">
+                                        <h4 class="font-bold text-slate-800 md:hidden">24 小時內通報</h4>
+                                        <div class="bg-indigo-50 p-3 rounded-xl border border-indigo-100 text-sm text-indigo-700">
+                                            使用健保網域 (VPN) <strong>免帳號通報</strong> 入口進行快速登錄。
+                                        </div>
+                                    </div>
+                                    <div class="z-10 bg-indigo-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg shadow-indigo-200 order-1 md:order-2">2</div>
+                                    <div class="md:w-1/2 md:pl-10 hidden md:block order-3">
+                                        <h4 class="font-bold text-slate-800">24 小時內通報</h4>
+                                        <p class="text-xs text-slate-500">法定傳染病通報系統</p>
+                                    </div>
+                                </div>
+
+                                <!-- Step 3 -->
+                                <div class="flex flex-col md:flex-row items-center">
+                                    <div class="md:w-1/2 md:pr-10 text-right hidden md:block">
+                                        <h4 class="font-bold text-slate-800">環境與接觸者管理</h4>
+                                        <p class="text-xs text-slate-500">診間清消與人員監測</p>
+                                    </div>
+                                    <div class="z-10 bg-indigo-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-lg shadow-indigo-200">3</div>
+                                    <div class="md:w-1/2 md:pl-10 mt-2 md:mt-0">
+                                        <h4 class="font-bold text-slate-800 md:hidden">環境與接觸者管理</h4>
+                                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 text-sm text-slate-600">
+                                            診間靜置 <strong>2 小時</strong> 並加強通報接觸者名單至衛生單位。
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 防護指引表格 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                        <div class="flex items-center mb-4">
+                            <div class="p-2 bg-amber-100 text-amber-700 rounded-lg mr-3">
+                                <i class="fas fa-user-md"></i>
+                            </div>
+                            <h3 class="font-bold">醫護端保護</h3>
+                        </div>
+                        <ul class="text-sm space-y-2 text-slate-600">
+                            <li class="flex items-start"><i class="fas fa-check-circle text-emerald-500 mt-1 mr-2 text-xs"></i>確認 MMR 疫苗免疫史</li>
+                            <li class="flex items-start"><i class="fas fa-check-circle text-emerald-500 mt-1 mr-2 text-xs"></i>落實標準防護與空氣預防措施</li>
+                            <li class="flex items-start"><i class="fas fa-check-circle text-emerald-500 mt-1 mr-2 text-xs"></i>接觸後自主健康監測 21 天</li>
+                        </ul>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
+                        <div class="flex items-center mb-4">
+                            <div class="p-2 bg-blue-100 text-blue-700 rounded-lg mr-3">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h3 class="font-bold">民眾端衛教</h3>
+                        </div>
+                        <ul class="text-sm space-y-2 text-slate-600">
+                            <li class="flex items-start"><i class="fas fa-info-circle text-blue-500 mt-1 mr-2 text-xs"></i>宣導按時接種兩劑 MMR</li>
+                            <li class="flex items-start"><i class="fas fa-info-circle text-blue-500 mt-1 mr-2 text-xs"></i>疑似症狀者就醫前應先電話告知</li>
+                            <li class="flex items-start"><i class="fas fa-info-circle text-blue-500 mt-1 mr-2 text-xs"></i>避免出入人潮擁擠場所</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- 聯絡窗口 (參考上傳文件) -->
+                <section class="bg-slate-900 text-white rounded-2xl p-6 shadow-xl">
+                    <div class="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
+                        <div>
+                            <h3 class="font-bold text-xl mb-2 flex items-center">
+                                <i class="fas fa-phone-volume mr-3 text-indigo-400"></i> 通報聯絡專線
+                            </h3>
+                            <p class="text-slate-400 text-sm">若通報系統無法使用，請先以紙本傳真並致電確認。</p>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full md:w-auto">
+                            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                                <p class="text-[10px] text-slate-500 uppercase font-bold mb-1">傳真通報專線</p>
+                                <p class="text-lg font-bold text-white">02-23611487</p>
+                            </div>
+                            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700">
+                                <p class="text-[10px] text-slate-500 uppercase font-bold mb-1">防疫確認電話</p>
+                                <p class="text-lg font-bold text-indigo-400">02-23753782</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <footer class="text-center py-6 text-slate-400 text-xs">
+                    <p>© 2026 大同區健康服務中心 | 防疫一體 ‧ 守護社區</p>
+                    <p class="mt-2">更新日期：2026年01月07日</p>
+                </footer>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const checkFever = document.getElementById('check_fever');
+        const checkRash = document.getElementById('check_rash');
+        const diffConds = document.querySelectorAll('.diff-cond');
+        const resultBox = document.getElementById('decisionResult');
+
+        function updateDecision() {
+            const hasFever = checkFever.checked;
+            const hasRash = checkRash.checked;
+            let extraChecked = 0;
+            diffConds.forEach(c => { if(c.checked) extraChecked++; });
+
+            if (!hasFever && !hasRash && extraChecked === 0) {
+                resultBox.innerHTML = `
+                    <div class="p-4 rounded-xl bg-slate-100 border border-slate-200 text-center border-dashed">
+                        <p class="text-xs text-slate-500">請勾選上方症狀以獲取行動建議</p>
+                    </div>
+                `;
+                return;
             }
-        });
-    });
-    
-    // 移除照片功能
-    window.removePhoto = function(index) {
-        const dt = new DataTransfer();
-        const files = Array.from(photoInput.files);
-        
-        files.forEach((file, i) => {
-            if (i !== index) {
-                dt.items.add(file);
-            }
-        });
-        
-        photoInput.files = dt.files;
-        photoInput.dispatchEvent(new Event('change'));
-    };
-    
-    // 本地儲存功能
-    function saveReportToStorage(reportData) {
-        let reports = JSON.parse(localStorage.getItem('hazardReports') || '[]');
-        reports.push(reportData);
-        localStorage.setItem('hazardReports', JSON.stringify(reports));
-    }
-    
-    function getReportsFromStorage() {
-        return JSON.parse(localStorage.getItem('hazardReports') || '[]');
-    }
-    
-    function updateReportStatus(reportId, newStatus) {
-        let reports = getReportsFromStorage();
-        const reportIndex = reports.findIndex(r => r.reportId === reportId);
-        if (reportIndex !== -1) {
-            reports[reportIndex].status = newStatus;
-            localStorage.setItem('hazardReports', JSON.stringify(reports));
-            displayReports();
-            updateStatistics();
-        }
-    }
-    
-    function deleteReport(reportId) {
-        if (confirm('確定要刪除這筆通報記錄嗎？')) {
-            let reports = getReportsFromStorage();
-            reports = reports.filter(r => r.reportId !== reportId);
-            localStorage.setItem('hazardReports', JSON.stringify(reports));
-            displayReports();
-            updateStatistics();
-        }
-    }
-    
-    // 頁面切換功能
-    const showFormBtn = document.getElementById('showFormBtn');
-    const showRecordsBtn = document.getElementById('showRecordsBtn');
-    const exportDataBtn = document.getElementById('exportDataBtn');
-    const shareDataBtn = document.getElementById('shareDataBtn');
-    const formContainer = document.getElementById('formContainer');
-    const recordsContainer = document.getElementById('recordsContainer');
-    
-    showFormBtn.addEventListener('click', function() {
-        formContainer.style.display = 'block';
-        recordsContainer.style.display = 'none';
-        this.classList.add('bg-opacity-40');
-        showRecordsBtn.classList.remove('bg-opacity-40');
-    });
-    
-    showRecordsBtn.addEventListener('click', function() {
-        formContainer.style.display = 'none';
-        recordsContainer.style.display = 'block';
-        this.classList.add('bg-opacity-40');
-        showFormBtn.classList.remove('bg-opacity-40');
-        displayReports();
-        updateStatistics();
-    });
-    
-    // 分享功能
-    const shareModal = document.getElementById('shareModal');
-    const shareNotification = document.getElementById('shareNotification');
-    const shareNotificationText = document.getElementById('shareNotificationText');
-    
-    shareDataBtn.addEventListener('click', function() {
-        const reports = getReportsFromStorage();
-        if (reports.length === 0) {
-            alert('沒有資料可以分享！請先新增通報記錄。');
-            return;
-        }
-        shareModal.style.display = 'flex';
-    });
-    
-    document.getElementById('closeShareModal').addEventListener('click', function() {
-        shareModal.style.display = 'none';
-    });
-    
-    // 分享通知功能
-    function showShareNotification(message) {
-        shareNotificationText.textContent = message;
-        shareNotification.classList.add('show');
-        setTimeout(() => {
-            shareNotification.classList.remove('show');
-        }, 3000);
-    }
-    
-    // WhatsApp 分享
-    document.getElementById('shareWhatsApp').addEventListener('click', function() {
-        const reports = getReportsFromStorage();
-        const summary = generateShareSummary(reports);
-        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(summary)}`;
-        window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
-        shareModal.style.display = 'none';
-        showShareNotification('已開啟 WhatsApp 分享！');
-    });
-    
-    // LINE 分享
-    document.getElementById('shareLine').addEventListener('click', function() {
-        const reports = getReportsFromStorage();
-        const summary = generateShareSummary(reports);
-        const lineUrl = `https://social-plugins.line.me/lineit/share?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(summary)}`;
-        window.open(lineUrl, '_blank', 'noopener,noreferrer');
-        shareModal.style.display = 'none';
-        showShareNotification('已開啟 LINE 分享！');
-    });
-    
-    // Email 分享
-    document.getElementById('shareEmail').addEventListener('click', function() {
-        const reports = getReportsFromStorage();
-        const summary = generateShareSummary(reports);
-        const subject = '高危點通報資料分享';
-        const emailUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(summary)}`;
-        window.open(emailUrl, '_blank', 'noopener,noreferrer');
-        shareModal.style.display = 'none';
-        showShareNotification('已開啟 Email 分享！');
-    });
-    
-    // 複製連結
-    document.getElementById('copyLink').addEventListener('click', function() {
-        const reports = getReportsFromStorage();
-        const summary = generateShareSummary(reports);
-        
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(summary).then(() => {
-                shareModal.style.display = 'none';
-                showShareNotification('資料已複製到剪貼簿！');
-            }).catch(() => {
-                fallbackCopyText(summary);
-            });
-        } else {
-            fallbackCopyText(summary);
-        }
-    });
-    
-    // 備用複製功能
-    function fallbackCopyText(text) {
-        const textArea = document.createElement('textarea');
-        textArea.value = text;
-        document.body.appendChild(textArea);
-        textArea.select();
-        try {
-            document.execCommand('copy');
-            shareModal.style.display = 'none';
-            showShareNotification('資料已複製到剪貼簿！');
-        } catch (err) {
-            alert('複製失敗，請手動複製資料');
-        }
-        document.body.removeChild(textArea);
-    }
-    
-    // 分享統計報告
-    document.getElementById('shareReport').addEventListener('click', function() {
-        const reports = getReportsFromStorage();
-        const reportSummary = generateDetailedReport(reports);
-        
-        if (navigator.clipboard) {
-            navigator.clipboard.writeText(reportSummary).then(() => {
-                shareModal.style.display = 'none';
-                showShareNotification('統計報告已複製！');
-            }).catch(() => {
-                fallbackCopyText(reportSummary);
-            });
-        } else {
-            fallbackCopyText(reportSummary);
-        }
-    });
-    
-    // 生成分享摘要
-    function generateShareSummary(reports) {
-        const totalReports = reports.length;
-        const urgentReports = reports.filter(r => r.urgency === '非常緊急' || r.urgency === '緊急').length;
-        const completedReports = reports.filter(r => r.status === '已完成').length;
-        const pendingReports = reports.filter(r => r.status === '待處理').length;
-        
-        let summary = `🚨 高危點報馬仔 - 通報資料摘要\n`;
-        summary += `📊 統計資訊：\n`;
-        summary += `• 總通報數：${totalReports} 筆\n`;
-        summary += `• 緊急案件：${urgentReports} 筆\n`;
-        summary += `• 已處理：${completedReports} 筆\n`;
-        summary += `• 待處理：${pendingReports} 筆\n\n`;
-        
-        if (reports.length > 0) {
-            summary += `📋 最新通報記錄：\n`;
-            const latestReports = reports.slice(-3).reverse();
-            latestReports.forEach((report, index) => {
-                summary += `${index + 1}. ${report.reportId}\n`;
-                summary += `   地址：${report.fullAddress}\n`;
-                summary += `   類型：${report.riskType} | 緊急程度：${report.urgency}\n`;
-                summary += `   狀態：${report.status}\n\n`;
-            });
-        }
-        
-        summary += `⏰ 資料更新時間：${new Date().toLocaleString('zh-TW')}\n`;
-        summary += `🔗 系統：高危點報馬仔智慧通報系統`;
-        
-        return summary;
-    }
-    
-    // 生成詳細報告
-    function generateDetailedReport(reports) {
-        let report = `📊 高危點通報系統 - 詳細統計報告\n`;
-        report += `${'='.repeat(40)}\n\n`;
-        
-        // 基本統計
-        const totalReports = reports.length;
-        const urgentReports = reports.filter(r => r.urgency === '非常緊急' || r.urgency === '緊急').length;
-        const completedReports = reports.filter(r => r.status === '已完成').length;
-        const pendingReports = reports.filter(r => r.status === '待處理').length;
-        const processingReports = reports.filter(r => r.status === '處理中').length;
-        
-        report += `📈 基本統計：\n`;
-        report += `• 總通報數：${totalReports} 筆\n`;
-        report += `• 緊急案件：${urgentReports} 筆 (${totalReports > 0 ? Math.round(urgentReports/totalReports*100) : 0}%)\n`;
-        report += `• 已完成：${completedReports} 筆 (${totalReports > 0 ? Math.round(completedReports/totalReports*100) : 0}%)\n`;
-        report += `• 處理中：${processingReports} 筆 (${totalReports > 0 ? Math.round(processingReports/totalReports*100) : 0}%)\n`;
-        report += `• 待處理：${pendingReports} 筆 (${totalReports > 0 ? Math.round(pendingReports/totalReports*100) : 0}%)\n\n`;
-        
-        // 緊急程度分析
-        const urgencyStats = {};
-        reports.forEach(r => {
-            urgencyStats[r.urgency] = (urgencyStats[r.urgency] || 0) + 1;
-        });
-        
-        report += `⚠️ 緊急程度分析：\n`;
-        Object.entries(urgencyStats).forEach(([urgency, count]) => {
-            report += `• ${urgency}：${count} 筆\n`;
-        });
-        report += `\n`;
-        
-        // 高危點類型分析
-        const typeStats = {};
-        reports.forEach(r => {
-            typeStats[r.riskType] = (typeStats[r.riskType] || 0) + 1;
-        });
-        
-        report += `🏠 高危點類型分析：\n`;
-        Object.entries(typeStats).forEach(([type, count]) => {
-            report += `• ${type}：${count} 筆\n`;
-        });
-        report += `\n`;
-        
-        // 里別分析
-        const villageStats = {};
-        reports.forEach(r => {
-            villageStats[r.village] = (villageStats[r.village] || 0) + 1;
-        });
-        
-        report += `📍 里別分析：\n`;
-        Object.entries(villageStats)
-            .sort(([,a], [,b]) => b - a)
-            .slice(0, 10)
-            .forEach(([village, count]) => {
-                report += `• ${village}：${count} 筆\n`;
-            });
-        
-        report += `\n⏰ 報告生成時間：${new Date().toLocaleString('zh-TW')}\n`;
-        report += `🔗 系統：高危點報馬仔智慧通報系統`;
-        
-        return report;
-    }
-    
-    // 顯示通報記錄
-    function displayReports(filteredReports = null) {
-        const reports = filteredReports || getReportsFromStorage();
-        const recordsList = document.getElementById('recordsList');
-        
-        if (reports.length === 0) {
-            recordsList.innerHTML = `
-                <div class="text-center py-8 text-gray-500">
-                    <div class="text-4xl mb-4">📝</div>
-                    <div class="text-lg">尚無通報記錄</div>
-                    <div class="text-sm">請先新增通報資料</div>
-                </div>
-            `;
-            return;
-        }
-        
-        recordsList.innerHTML = reports.map(report => {
-            const urgencyColor = {
-                '非常緊急': 'bg-red-100 border-red-500 text-red-800',
-                '緊急': 'bg-orange-100 border-orange-500 text-orange-800',
-                '一般': 'bg-yellow-100 border-yellow-500 text-yellow-800',
-                '不緊急': 'bg-green-100 border-green-500 text-green-800'
-            };
-            
-            const statusColor = {
-                '待處理': 'bg-gray-100 text-gray-800',
-                '處理中': 'bg-blue-100 text-blue-800',
-                '已完成': 'bg-green-100 text-green-800'
-            };
-            
-            return `
-                <div class="bg-white border-2 border-gray-200 rounded-lg p-4 hover:shadow-lg transition-all">
-                    <div class="flex flex-wrap justify-between items-start mb-3">
-                        <div>
-                            <h3 class="font-bold text-lg text-gray-800">${report.reportId}</h3>
-                            <p class="text-sm text-gray-600">${new Date(report.timestamp).toLocaleString('zh-TW')}</p>
+
+            if (hasFever && hasRash && extraChecked > 0) {
+                resultBox.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm animate-in fade-in slide-in-from-top-1">
+                        <div class="flex items-center mb-3">
+                            <span class="bg-red-600 text-white p-1.5 rounded-lg text-xs font-bold mr-2">高度警訊</span>
+                            <span class="text-sm font-bold text-red-700 font-bold">符合通報定義</span>
                         </div>
-                        <div class="flex gap-2">
-                            <span class="px-3 py-1 rounded-full text-xs font-medium ${urgencyColor[report.urgency] || 'bg-gray-100 text-gray-800'}">
-                                ${report.urgency}
-                            </span>
-                            <span class="px-3 py-1 rounded-full text-xs font-medium ${statusColor[report.status] || 'bg-gray-100 text-gray-800'}">
-                                ${report.status}
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <p class="text-sm font-medium text-gray-700">通報人：${report.name || '匿名'}</p>
-                            <p class="text-sm font-medium text-gray-700">里別：${report.village}</p>
-                            <p class="text-sm font-medium text-gray-700">地址：${report.fullAddress}</p>
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium text-gray-700">類型：${report.riskType}</p>
-                            <p class="text-sm font-medium text-gray-700">電話：${report.phone || '未提供'}</p>
-                            <p class="text-sm font-medium text-gray-700">地標：${report.landmark || '無'}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <p class="text-sm font-medium text-gray-700 mb-1">詳細描述：</p>
-                        <p class="text-sm text-gray-600 bg-gray-50 p-2 rounded">${report.description}</p>
-                    </div>
-                    
-                    <div class="flex flex-wrap gap-2">
-                        <select onchange="updateReportStatus('${report.reportId}', this.value)" class="text-xs px-2 py-1 border rounded">
-                            <option value="待處理" ${report.status === '待處理' ? 'selected' : ''}>待處理</option>
-                            <option value="處理中" ${report.status === '處理中' ? 'selected' : ''}>處理中</option>
-                            <option value="已完成" ${report.status === '已完成' ? 'selected' : ''}>已完成</option>
-                        </select>
-                        <button onclick="deleteReport('${report.reportId}')" class="text-xs bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
-                            刪除
+                        <ul class="text-[12px] text-red-800 space-y-2 mb-4">
+                            <li><i class="fas fa-angle-right mr-1"></i> 請於 <strong>24小時內</strong> 完成法定通報。</li>
+                            <li><i class="fas fa-angle-right mr-1"></i> 立即執行 <strong>標準/飛沫/空氣預防</strong>。</li>
+                            <li><i class="fas fa-angle-right mr-1"></i> 登革熱流行期請同時執行 <strong>NS1快篩</strong>。</li>
+                        </ul>
+                        <button onclick="window.scrollTo({top: 1000, behavior: 'smooth'})" class="w-full bg-red-600 text-white py-2 rounded-lg text-xs font-bold hover:bg-red-700 transition-colors">
+                            檢視通報聯繫方式
                         </button>
                     </div>
-                </div>
-            `;
-        }).join('');
-    }
-    
-    // 更新統計資訊
-    function updateStatistics() {
-        const reports = getReportsFromStorage();
-        document.getElementById('totalReports').textContent = reports.length;
-        document.getElementById('urgentReports').textContent = reports.filter(r => r.urgency === '非常緊急' || r.urgency === '緊急').length;
-        document.getElementById('completedReports').textContent = reports.filter(r => r.status === '已完成').length;
-        document.getElementById('pendingReports').textContent = reports.filter(r => r.status === '待處理').length;
-    }
-    
-    // 搜尋和篩選功能
-    document.getElementById('searchInput').addEventListener('input', filterReports);
-    document.getElementById('filterUrgency').addEventListener('change', filterReports);
-    document.getElementById('filterStatus').addEventListener('change', filterReports);
-    
-    function filterReports() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const urgencyFilter = document.getElementById('filterUrgency').value;
-        const statusFilter = document.getElementById('filterStatus').value;
-        
-        let reports = getReportsFromStorage();
-        
-        if (searchTerm) {
-            reports = reports.filter(report => 
-                report.reportId.toLowerCase().includes(searchTerm) ||
-                report.fullAddress.toLowerCase().includes(searchTerm) ||
-                report.description.toLowerCase().includes(searchTerm) ||
-                (report.name && report.name.toLowerCase().includes(searchTerm))
-            );
-        }
-        
-        if (urgencyFilter) {
-            reports = reports.filter(report => report.urgency === urgencyFilter);
-        }
-        
-        if (statusFilter) {
-            reports = reports.filter(report => report.status === statusFilter);
-        }
-        
-        displayReports(reports);
-    }
-    
-    // CSV 匯出功能
-    exportDataBtn.addEventListener('click', function() {
-        const reports = getReportsFromStorage();
-        if (reports.length === 0) {
-            alert('沒有資料可以匯出！');
-            return;
-        }
-        
-        const csvContent = generateCSV(reports);
-        downloadCSV(csvContent, `通報記錄_${new Date().toISOString().split('T')[0]}.csv`);
-    });
-    
-    function generateCSV(reports) {
-        const headers = [
-            '通報編號', '通報時間', '通報人', '聯絡電話', '里別', '完整地址', 
-            '高危點類型', '緊急程度', '詳細描述', '附近地標', '處理狀態'
-        ];
-        
-        const csvRows = [headers.join(',')];
-        
-        reports.forEach(report => {
-            const row = [
-                report.reportId,
-                new Date(report.timestamp).toLocaleString('zh-TW'),
-                report.name || '匿名',
-                report.phone || '',
-                report.village,
-                report.fullAddress,
-                report.riskType,
-                report.urgency,
-                `"${report.description.replace(/"/g, '""')}"`,
-                report.landmark || '',
-                report.status
-            ];
-            csvRows.push(row.join(','));
-        });
-        
-        return csvRows.join('\n');
-    }
-    
-    function downloadCSV(csvContent, filename) {
-        try {
-            const BOM = '\uFEFF';
-            const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
-            
-            // 檢查瀏覽器支援
-            if (window.navigator && window.navigator.msSaveOrOpenBlob) {
-                // IE 支援
-                window.navigator.msSaveOrOpenBlob(blob, filename);
+                `;
+            } else if (hasFever || hasRash) {
+                resultBox.innerHTML = `
+                    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 shadow-sm">
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-search text-amber-600 mr-2"></i>
+                            <span class="text-sm font-bold text-amber-800 font-bold">密切觀察中</span>
+                        </div>
+                        <p class="text-[12px] text-amber-700 leading-relaxed italic">
+                            雖未完全符合「發燒+出疹+加強項」之通報門檻，但仍建議執行 TOCC 追蹤，並提醒病患若出現 3C 症狀或劇烈疼痛請立即複診。
+                        </p>
+                    </div>
+                `;
             } else {
-                // 現代瀏覽器
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = filename;
-                link.style.display = 'none';
-                
-                document.body.appendChild(link);
-                link.click();
-                
-                // 清理
-                setTimeout(() => {
-                    document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
-                }, 100);
-            }
-            
-            // 顯示成功通知
-            showShareNotification('CSV 檔案下載成功！');
-            
-        } catch (error) {
-            console.error('下載失敗:', error);
-            
-            // 備用方案：複製到剪貼簿
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(csvContent).then(() => {
-                    alert('下載失敗，但資料已複製到剪貼簿！\n您可以貼到 Excel 或記事本中儲存。');
-                }).catch(() => {
-                    fallbackShowData(csvContent);
-                });
-            } else {
-                fallbackShowData(csvContent);
+                resultBox.innerHTML = `
+                    <div class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 shadow-sm">
+                        <div class="flex items-center mb-1 text-indigo-700">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            <span class="text-sm font-bold">單一加強項</span>
+                        </div>
+                        <p class="text-[11px] text-indigo-600">請繼續評估發燒與皮疹進程。</p>
+                    </div>
+                `;
             }
         }
-    }
-    
-    // 備用顯示資料方案
-    function fallbackShowData(csvContent) {
-        const newWindow = window.open('', '_blank');
-        if (newWindow) {
-            newWindow.document.write(`
-                <html>
-                <head><title>通報資料</title></head>
-                <body>
-                    <h2>通報資料 CSV 格式</h2>
-                    <p>請複製以下內容到 Excel 或記事本中儲存：</p>
-                    <textarea style="width:100%;height:400px;font-family:monospace;">${csvContent}</textarea>
-                    <br><br>
-                    <button onclick="navigator.clipboard.writeText(document.querySelector('textarea').value).then(() => alert('已複製！'))">複製全部</button>
-                </body>
-                </html>
-            `);
-        } else {
-            alert('無法開啟新視窗，請檢查瀏覽器設定或手動複製資料。');
-        }
-    }
-    
-    // 清空所有資料
-    document.getElementById('clearAllData').addEventListener('click', function() {
-        if (confirm('確定要清空所有通報資料嗎？此操作無法復原！')) {
-            localStorage.removeItem('hazardReports');
-            displayReports();
-            updateStatistics();
-            alert('所有資料已清空！');
-        }
-    });
-    
-    // 將函數設為全域，供 HTML 中的 onclick 使用
-    window.updateReportStatus = updateReportStatus;
-    window.deleteReport = deleteReport;
-    
-    // 表單提交處理
-    document.getElementById('reportForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // 收集表單資料
-        const formData = new FormData(this);
-        const data = {};
-        for (let [key, value] of formData.entries()) {
-            data[key] = value;
-        }
-        
-        // 建構完整地址
-        let fullAddress = '臺北市大同區' + (data.road || '');
-        if (data.lane) fullAddress += data.lane + '巷';
-        if (data.alley) fullAddress += data.alley + '弄';
-        if (data.number) fullAddress += data.number + '號';
-        if (data.subnumber) fullAddress += '之' + data.subnumber;
-        if (data.floor) fullAddress += data.floor + '樓';
-        
-        // 生成通報編號
-        const reportId = 'RPT' + Date.now().toString().slice(-8);
-        
-        // 儲存到 localStorage
-        const reportData = {
-            reportId: reportId,
-            timestamp: new Date().toISOString(),
-            status: '待處理',
-            ...data,
-            fullAddress: fullAddress
-        };
-        
-        saveReportToStorage(reportData);
-        
-        // 顯示成功訊息
-        const successMessage = document.getElementById('successMessage');
-        successMessage.innerHTML = `
-            <div class="text-2xl mb-2">✅</div>
-            <div class="text-lg font-bold mb-1">報告提交成功！</div>
-            <div class="mb-2">通報編號：${reportId}</div>
-            <div>資料已儲存到本地，可在「查看記錄」中管理</div>
-        `;
-        successMessage.style.display = 'block';
-        successMessage.scrollIntoView({ behavior: 'smooth' });
-        
-        // 在控制台顯示完整資料
-        console.log('通報資料已儲存:', reportData);
-        
-        // 重置表單
-        setTimeout(() => {
-            this.reset();
-            // 重新設定今天日期
-            discoveryDate.value = today.toISOString().split('T')[0];
-            // 重置匿名通報狀態
-            nameSection.style.display = 'block';
-            nameSelect.setAttribute('required', '');
-            // 清除照片預覽
-            photoPreview.innerHTML = '';
-            // 移除緊急程度樣式
-            document.querySelector('.section-divider').classList.remove('urgency-high', 'urgency-medium', 'urgency-low');
-            
-            setTimeout(() => {
-                successMessage.style.display = 'none';
-            }, 1000);
-        }, 4000);
-    });
-    
-    // 表單驗證增強
-    const requiredFields = document.querySelectorAll('[required]');
-    requiredFields.forEach(field => {
-        field.addEventListener('blur', function() {
-            if (!this.value.trim()) {
-                this.style.borderColor = '#ef4444';
-            } else {
-                this.style.borderColor = '#10b981';
-            }
-        });
-        
-        field.addEventListener('input', function() {
-            if (this.value.trim()) {
-                this.style.borderColor = '#10b981';
-            }
-        });
-    });
-</script>
 
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98495f72a2298282',t:'MTc1ODc5MTI2My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
-
+        [checkFever, checkRash].forEach(el => el.addEventListener('change', updateDecision));
+        diffConds.forEach(el => el.addEventListener('change', updateDecision));
+    </script>
+</body>
 </html>
